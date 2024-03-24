@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Title>Spryer.AspNetCore.Identity.SqlServer</Title>
+    <Description>ASP.NET Core Identity provider powered by Dapper and SQL Server</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Spryer.AspNetCore.Identity.SqlServer</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/vborovikov/identity</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/vborovikov/identity.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>identity;aspnetcore;sqlserver</PackageTags>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.35" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Spryer.AspNetCore.Identity\Spryer.AspNetCore.Identity.csproj" />
+  </ItemGroup>
+
+</Project>
