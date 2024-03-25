@@ -11,11 +11,17 @@ using Microsoft.Extensions.Options;
 /// </summary>
 public static class IdentityDapperBuilderExtensions
 {
+    /// <summary>
+    /// Adds Dapper implementation of ASP.NET Core Identity stores.
+    /// </summary>
+    /// <param name="builder">The <see cref="IdentityBuilder"/> instance this method extends.</param>
+    /// <param name="setupAction">The <see cref="Action{T}"/> to configure the <see cref="DapperStoreOptions"/>.</param>
+    /// <returns>The <see cref="IdentityBuilder"/> instance.</returns>
     public static IdentityBuilder AddDapperStores(this IdentityBuilder builder, Action<OptionsBuilder<DapperStoreOptions>> setupAction)
     {
-        AddStores(builder.Services, builder.UserType, builder.RoleType);
-        var optionsBuilder = new OptionsBuilder<DapperStoreOptions>(builder.Services, null);
+        var optionsBuilder = builder.Services.AddOptions<DapperStoreOptions>();
         setupAction(optionsBuilder);
+        AddStores(builder.Services, builder.UserType, builder.RoleType);
         return builder;
     }
 
