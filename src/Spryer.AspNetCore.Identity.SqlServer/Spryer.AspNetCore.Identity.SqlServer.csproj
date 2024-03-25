@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>Spryer.AspNetCore.Identity.SqlServer</Title>
-    <Description>ASP.NET Core Identity provider powered by Dapper and SQL Server</Description>
+    <Description>ASP.NET Core Identity provider with non-IQueryable stores in SQL Server</Description>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -26,11 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.35" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\Spryer.AspNetCore.Identity\Spryer.AspNetCore.Identity.csproj" />
+    <PackageReference Include="Spryer.AspNetCore.Identity" Version="0.1.0-beta.1" />
   </ItemGroup>
 
 </Project>
