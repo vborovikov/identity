@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 /// <summary>
 /// Creates a new instance of a persistence store for roles.
@@ -15,19 +16,24 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
     where TRole : IdentityRole<TKey>
     where TKey : IEquatable<TKey>
 {
+    private readonly DapperStoreOptions options;
     private readonly IIdentityQueries queries;
-    private readonly DbDataSource _db;
+    private readonly DbDataSource db;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RoleStore{TRole, TKey}"/> class.
     /// </summary>
+    /// <param name="options">The store options.</param>
     /// <param name="identityQueries">The SQL queries used to access the store.</param>
     /// <param name="dbDataSource">The <see cref="DbDataSource"/> used to access the store.</param>
     /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-    public RoleStore(IIdentityQueries identityQueries, DbDataSource dbDataSource, IdentityErrorDescriber describer) : base(describer)
+    public RoleStore(IOptions<DapperStoreOptions> options, IIdentityQueries identityQueries, DbDataSource dbDataSource, IdentityErrorDescriber describer) : base(describer)
     {
+        ArgumentNullException.ThrowIfNull(identityQueries);
+        ArgumentNullException.ThrowIfNull(dbDataSource);
+        this.options = options.Value;
         this.queries = identityQueries;
-        _db = dbDataSource;
+        this.db = dbDataSource;
     }
 
     /// <inheritdoc/>
@@ -37,7 +43,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ArgumentNullException.ThrowIfNull(role);
         ArgumentNullException.ThrowIfNull(claim);
 
-        await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
@@ -57,7 +63,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
 
-        await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
@@ -78,7 +84,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
 
-        await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
@@ -99,7 +105,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(id);
 
-        await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRoleById, new { RoleId = id });
         return role;
     }
@@ -110,7 +116,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(normalizedName);
 
-        await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRoleByName, 
             new { NormalizedName = normalizedName.AsVarChar(128) });
         return role;
@@ -122,7 +128,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
 
-        await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         var claims = await cnn.QueryAsync<IdentityRoleClaim<TKey>>(this.queries.SelectRoleClaims, new { RoleId = role.Id });
         return claims.Select(rc => rc.ToClaim()).ToArray();
     }
@@ -134,7 +140,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ArgumentNullException.ThrowIfNull(role);
         ArgumentNullException.ThrowIfNull(claim);
 
-        await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
@@ -154,7 +160,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
 
-        await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {

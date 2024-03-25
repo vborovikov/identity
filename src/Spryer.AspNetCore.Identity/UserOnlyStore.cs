@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 /// <summary>
 /// Creates a new instance of a persistence store for the specified user type.
@@ -18,11 +19,12 @@ public class UserOnlyStore<TUser> : UserOnlyStore<TUser, string> where TUser : I
     /// <summary>
     /// Constructs a new instance of <see cref="UserOnlyStore{TUser}"/>.
     /// </summary>
+    /// <param name="options">The store options.</param>
     /// <param name="identityQueries">The SQL queries used to access the store.</param>
     /// <param name="dbDataSource">The <see cref="DbDataSource"/> used to access the store.</param>
     /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-    public UserOnlyStore(IIdentityQueries identityQueries, DbDataSource dbDataSource, IdentityErrorDescriber? describer = null)
-        : base(identityQueries, dbDataSource, describer) { }
+    public UserOnlyStore(IOptions<DapperStoreOptions> options, IIdentityQueries identityQueries, DbDataSource dbDataSource, IdentityErrorDescriber? describer = null)
+        : base(options, identityQueries, dbDataSource, describer) { }
 }
 
 /// <summary>
@@ -37,11 +39,12 @@ public class UserOnlyStore<TUser, TKey> : UserOnlyStore<TUser, TKey, IdentityUse
     /// <summary>
     /// Constructs a new instance of <see cref="UserOnlyStore{TUser, TKey}"/>.
     /// </summary>
+    /// <param name="options">The store options.</param>
     /// <param name="identityQueries">The SQL queries used to access the store.</param>
     /// <param name="dbDataSource">The <see cref="DbDataSource"/>.</param>
     /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-    public UserOnlyStore(IIdentityQueries identityQueries, DbDataSource dbDataSource, IdentityErrorDescriber? describer = null)
-        : base(identityQueries, dbDataSource, describer) { }
+    public UserOnlyStore(IOptions<DapperStoreOptions> options, IIdentityQueries identityQueries, DbDataSource dbDataSource, IdentityErrorDescriber? describer = null)
+        : base(options, identityQueries, dbDataSource, describer) { }
 }
 
 /// <summary>
@@ -72,18 +75,22 @@ public class UserOnlyStore<TUser, TKey, TUserClaim, TUserLogin, TUserToken> :
     where TUserLogin : IdentityUserLogin<TKey>, new()
     where TUserToken : IdentityUserToken<TKey>, new()
 {
+    private readonly DapperStoreOptions options;
     private readonly IIdentityQueries queries;
     private readonly DbDataSource db;
 
     /// <summary>
     /// Creates a new instance of the store.
     /// </summary>
+    /// <param name="options">The store options.</param>
     /// <param name="identityQueries">The SQL queries used to access the store.</param>
     /// <param name="dbDataSource">The data source used to access the store.</param>
     /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-    public UserOnlyStore(IIdentityQueries identityQueries, DbDataSource dbDataSource, IdentityErrorDescriber? describer = null) : base(describer ?? new IdentityErrorDescriber())
+    public UserOnlyStore(IOptions<DapperStoreOptions> options, IIdentityQueries identityQueries, DbDataSource dbDataSource, IdentityErrorDescriber? describer = null) : base(describer ?? new IdentityErrorDescriber())
     {
+        ArgumentNullException.ThrowIfNull(identityQueries);
         ArgumentNullException.ThrowIfNull(dbDataSource);
+        this.options = options.Value;
         this.queries = identityQueries;
         this.db = dbDataSource;
 

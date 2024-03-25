@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 /// <summary>
 /// Represents a new instance of a persistence store for the specified user and role types.
@@ -20,17 +21,22 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     where TRole : IdentityRole<TKey>
     where TKey : IEquatable<TKey>, IParsable<TKey>
 {
+    private readonly DapperStoreOptions options;
     private readonly IIdentityQueries queries;
     private readonly DbDataSource db;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserStore{TUser, TRole, TKey}"/> class.
     /// </summary>
+    /// <param name="options">The store options.</param>
     /// <param name="identityQueries">The SQL queries used to access the store.</param>
     /// <param name="dbDataSource">The <see cref="DbDataSource"/> used to access the store.</param>
     /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-    public UserStore(IIdentityQueries identityQueries, DbDataSource dbDataSource, IdentityErrorDescriber describer) : base(describer)
+    public UserStore(IOptions<DapperStoreOptions> options, IIdentityQueries identityQueries, DbDataSource dbDataSource, IdentityErrorDescriber describer) : base(describer)
     {
+        ArgumentNullException.ThrowIfNull(identityQueries);
+        ArgumentNullException.ThrowIfNull(dbDataSource);
+        this.options = options.Value;
         this.queries = identityQueries;
         this.db = dbDataSource;
     }
