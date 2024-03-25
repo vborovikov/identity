@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 /// <summary>
 /// Provides extension methods to <see cref="OptionsBuilder{DapperStoreOptions}"/> for adding Dapper stores.
 /// </summary>
-public static class DapperStoreOptionsBuilderExtensions
+public static class DapperStoreOptionsBuilderSqlServerExtensions
 {
     /// <summary>
     /// Configures the Dapper stores to use a SQL Server database.
