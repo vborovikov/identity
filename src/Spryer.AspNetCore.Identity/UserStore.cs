@@ -1,5 +1,6 @@
 ﻿namespace Spryer.AspNetCore.Identity;
 
+using System;
 using System.Data.Common;
 using System.Security.Claims;
 using System.Threading;
@@ -37,6 +38,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(claims);
 
@@ -48,7 +50,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
                 claims.Select(claim => CreateUserClaim(user, claim)), tx);
             await tx.CommitAsync(cancellationToken);
         }
-        catch (Exception)
+        catch (Exception x) when (x is not OperationCanceledException)
         {
             await tx.RollbackAsync(cancellationToken);
         }
@@ -57,6 +59,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task AddLoginAsync(TUser user, UserLoginInfo login, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(login);
 
@@ -67,7 +70,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
             await cnn.ExecuteAsync(this.queries.InsertUserLogin, CreateUserLogin(user, login), tx);
             await tx.CommitAsync(cancellationToken);
         }
-        catch (Exception)
+        catch (Exception x) when (x is not OperationCanceledException)
         {
             await tx.RollbackAsync(cancellationToken);
         }
@@ -76,6 +79,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task AddToRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(normalizedRoleName);
 
@@ -90,7 +94,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
             await cnn.ExecuteAsync(this.queries.InsertUserRole, CreateUserRole(user, role), tx);
             await tx.CommitAsync(cancellationToken);
         }
-        catch (Exception)
+        catch (Exception x) when (x is not OperationCanceledException)
         {
             await tx.RollbackAsync(cancellationToken);
         }
@@ -99,6 +103,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
@@ -119,6 +124,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
@@ -139,6 +145,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task<TUser?> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(normalizedEmail);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
@@ -149,6 +156,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override Task<TUser?> FindByIdAsync(string userId, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(userId);
 
         return FindUserAsync(TKey.Parse(userId, null), cancellationToken);
@@ -157,6 +165,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task<TUser?> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(normalizedUserName);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
@@ -167,6 +176,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
@@ -177,6 +187,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
@@ -187,6 +198,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
@@ -197,6 +209,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(claim);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
@@ -207,6 +220,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task<IList<TUser>> GetUsersInRoleAsync(string normalizedRoleName, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(normalizedRoleName);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
@@ -218,6 +232,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task<bool> IsInRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(normalizedRoleName);
 
@@ -230,6 +245,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(claims);
 
@@ -249,6 +265,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task RemoveFromRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(normalizedRoleName);
 
@@ -260,7 +277,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
                 new { UserId = user.Id, NormalizedRoleName = normalizedRoleName }, tx);
             await tx.CommitAsync(cancellationToken);
         }
-        catch (Exception)
+        catch (Exception x) when (x is not OperationCanceledException)
         {
             await tx.RollbackAsync(cancellationToken);
         }
@@ -269,6 +286,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(loginProvider);
         ArgumentNullException.ThrowIfNull(providerKey);
@@ -290,6 +308,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(claim);
         ArgumentNullException.ThrowIfNull(newClaim);
@@ -318,7 +337,6 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     public override async Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
@@ -342,6 +360,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     protected override async Task AddUserTokenAsync(IdentityUserToken<TKey> token)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(token);
 
         await using var cnn = await this.db.OpenConnectionAsync();
@@ -360,6 +379,9 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     protected override async Task<TRole?> FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
     {
+        ThrowIfDisposed();
+        ArgumentException.ThrowIfNullOrWhiteSpace(normalizedRoleName);
+
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRole, new { NormalizedRoleName = normalizedRoleName });
         return role;
@@ -368,6 +390,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     protected override async Task<IdentityUserToken<TKey>?> FindTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(loginProvider);
         ArgumentNullException.ThrowIfNull(name);
@@ -381,6 +404,8 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     protected override async Task<TUser?> FindUserAsync(TKey userId, CancellationToken cancellationToken)
     {
+        ThrowIfDisposed();
+
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         var user = await cnn.QuerySingleOrDefaultAsync<TUser>(this.queries.SelectUser, new { UserId = userId });
         return user;
@@ -389,6 +414,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     protected override async Task<IdentityUserLogin<TKey>?> FindUserLoginAsync(TKey userId, string loginProvider, string providerKey, CancellationToken cancellationToken)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(loginProvider);
         ArgumentNullException.ThrowIfNull(providerKey);
 
@@ -401,6 +427,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     protected override async Task<IdentityUserLogin<TKey>?> FindUserLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(loginProvider);
         ArgumentNullException.ThrowIfNull(providerKey);
 
@@ -413,6 +440,8 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     protected override async Task<IdentityUserRole<TKey>?> FindUserRoleAsync(TKey userId, TKey roleId, CancellationToken cancellationToken)
     {
+        ThrowIfDisposed();
+
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         var userRole = await cnn.QuerySingleOrDefaultAsync<IdentityUserRole<TKey>>(this.queries.SelectUserRoleByIds,
             new { UserId = userId, RoleId = roleId });
@@ -422,6 +451,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     /// <inheritdoc/>
     protected override async Task RemoveUserTokenAsync(IdentityUserToken<TKey> token)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(token);
 
         await using var cnn = await this.db.OpenConnectionAsync();

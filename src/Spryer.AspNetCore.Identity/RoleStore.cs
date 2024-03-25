@@ -33,6 +33,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
     /// <inheritdoc/>
     public override async Task AddClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
         ArgumentNullException.ThrowIfNull(claim);
 
@@ -53,6 +54,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
     /// <inheritdoc/>
     public override async Task<IdentityResult> CreateAsync(TRole role, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
 
         await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
@@ -73,6 +75,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
     /// <inheritdoc/>
     public override async Task<IdentityResult> DeleteAsync(TRole role, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
 
         await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
@@ -93,6 +96,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
     /// <inheritdoc/>
     public override async Task<TRole?> FindByIdAsync(string id, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(id);
 
         await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
@@ -103,6 +107,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
     /// <inheritdoc/>
     public override async Task<TRole?> FindByNameAsync(string normalizedName, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(normalizedName);
 
         await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
@@ -113,6 +118,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
     /// <inheritdoc/>
     public override async Task<IList<Claim>> GetClaimsAsync(TRole role, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
 
         await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
@@ -123,6 +129,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
     /// <inheritdoc/>
     public override async Task RemoveClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
         ArgumentNullException.ThrowIfNull(claim);
 
@@ -143,6 +150,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
     /// <inheritdoc/>
     public override async Task<IdentityResult> UpdateAsync(TRole role, CancellationToken cancellationToken = default)
     {
+        ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
 
         await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
