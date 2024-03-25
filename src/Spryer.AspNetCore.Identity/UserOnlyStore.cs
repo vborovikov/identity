@@ -21,7 +21,7 @@ public class UserOnlyStore<TUser> : UserOnlyStore<TUser, string> where TUser : I
     /// <param name="identityQueries">The SQL queries used to access the store.</param>
     /// <param name="dbDataSource">The <see cref="DbDataSource"/> used to access the store.</param>
     /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-    public UserOnlyStore(IIdentityQueries identityQueries, DbDataSource dbDataSource, IdentityErrorDescriber? describer = null) 
+    public UserOnlyStore(IIdentityQueries identityQueries, DbDataSource dbDataSource, IdentityErrorDescriber? describer = null)
         : base(identityQueries, dbDataSource, describer) { }
 }
 
@@ -128,20 +128,20 @@ public class UserOnlyStore<TUser, TKey, TUserClaim, TUserLogin, TUserToken> :
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
-        user.ConcurrencyStamp = Guid.NewGuid().ToString();
-
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
+            user.ConcurrencyStamp = Guid.NewGuid().ToString();
             await cnn.ExecuteAsync(this.queries.UpdateUser, user, tx);
             await tx.CommitAsync(cancellationToken);
+
             return IdentityResult.Success;
         }
         catch (Exception x) when (x is not OperationCanceledException)
         {
             await tx.RollbackAsync(cancellationToken);
-            return IdentityResult.Failed(this.ErrorDescriber.ConcurrencyFailure());
+            return IdentityResult.Failed(this.ErrorDescriber.DefaultError());
         }
     }
 

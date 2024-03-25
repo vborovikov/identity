@@ -322,20 +322,20 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
-        user.ConcurrencyStamp = Guid.NewGuid().ToString();
-
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
+            user.ConcurrencyStamp = Guid.NewGuid().ToString();
             await cnn.ExecuteAsync(this.queries.UpdateUser, user, tx);
             await tx.CommitAsync(cancellationToken);
+
             return IdentityResult.Success;
         }
         catch (Exception x) when (x is not OperationCanceledException)
         {
             await tx.RollbackAsync(cancellationToken);
-            return IdentityResult.Failed(this.ErrorDescriber.ConcurrencyFailure());
+            return IdentityResult.Failed(this.ErrorDescriber.DefaultError());
         }
     }
 

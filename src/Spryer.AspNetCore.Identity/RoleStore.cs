@@ -149,6 +149,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
+            role.ConcurrencyStamp = Guid.NewGuid().ToString();
             await cnn.ExecuteAsync(this.queries.UpdateRole, role, tx);
             await tx.CommitAsync(cancellationToken);
             return IdentityResult.Success;
