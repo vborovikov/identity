@@ -161,7 +161,7 @@ public class UserOnlyStore<TUser, TKey, TUserClaim, TUserLogin, TUserToken> :
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
-            await cnn.ExecuteAsync(this.queries.DeleteUser, new { user.Id }, tx);
+            await cnn.ExecuteAsync(this.queries.DeleteUser, new { UserId = user.Id }, tx);
             await tx.CommitAsync(cancellationToken);
             return IdentityResult.Success;
         }

@@ -131,7 +131,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
-            await cnn.ExecuteAsync(this.queries.DeleteUser, new { user.Id }, tx);
+            await cnn.ExecuteAsync(this.queries.DeleteUser, new { UserId = user.Id }, tx);
             await tx.CommitAsync(cancellationToken);
             return IdentityResult.Success;
         }

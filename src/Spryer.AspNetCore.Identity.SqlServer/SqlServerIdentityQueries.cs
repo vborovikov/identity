@@ -17,7 +17,7 @@ sealed class SqlServerIdentityQueries : IIdentityQueries
     public string DeleteUser => 
         """
         delete from asp.Users
-        where Id = @Id";
+        where Id = @UserId";
         """;
 
     public string SelectUserByEmail => 
