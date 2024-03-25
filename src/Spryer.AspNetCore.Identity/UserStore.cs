@@ -85,7 +85,8 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         var role = 
-            await cnn.QueryFirstOrDefaultAsync<TRole>(this.queries.SelectRoleByName, new { NormalizedRoleName = normalizedRoleName }) ??
+            await cnn.QueryFirstOrDefaultAsync<TRole>(this.queries.SelectRoleByName, 
+                new { NormalizedRoleName = normalizedRoleName.AsVarChar(128) }) ??
             throw new InvalidOperationException($"Role '{normalizedRoleName}' does not exist.");
 
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
@@ -149,7 +150,8 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(normalizedEmail);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
-        var user = await cnn.QuerySingleOrDefaultAsync<TUser>(this.queries.SelectUserByEmail, new { NormalizedEmail = normalizedEmail });
+        var user = await cnn.QuerySingleOrDefaultAsync<TUser>(this.queries.SelectUserByEmail, 
+            new { NormalizedEmail = normalizedEmail.AsVarChar(256) });
         return user;
     }
 
@@ -169,7 +171,8 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(normalizedUserName);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
-        var user = await cnn.QuerySingleOrDefaultAsync<TUser>(this.queries.SelectUserByName, new { NormalizedUserName = normalizedUserName });
+        var user = await cnn.QuerySingleOrDefaultAsync<TUser>(this.queries.SelectUserByName, 
+            new { NormalizedUserName = normalizedUserName.AsNVarChar(256) });
         return user;
     }
 
@@ -213,7 +216,8 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(claim);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
-        var users = await cnn.QueryAsync<TUser>(this.queries.SelectUsersByClaim, new { ClaimValue = claim.Value, ClaimType = claim.Type });
+        var users = await cnn.QueryAsync<TUser>(this.queries.SelectUsersByClaim, 
+            new { ClaimValue = claim.Value.AsVarChar(128), ClaimType = claim.Type.AsVarChar(128) });
         return users.ToArray();
     }
 
@@ -224,7 +228,8 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(normalizedRoleName);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
-        var users = await cnn.QueryAsync<TUser>(this.queries.SelectUsersInRole, new { NormalizedRoleName = normalizedRoleName });
+        var users = await cnn.QueryAsync<TUser>(this.queries.SelectUsersInRole, 
+            new { NormalizedRoleName = normalizedRoleName.AsVarChar(128) });
 
         return users.ToArray();
     }
@@ -238,7 +243,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         var userRole = await cnn.QueryFirstOrDefaultAsync<IdentityUserRole<TKey>>(this.queries.SelectUserRole,
-            new { UserId = user.Id, NormalizedRoleName = normalizedRoleName });
+            new { UserId = user.Id, NormalizedRoleName = normalizedRoleName.AsVarChar(128) });
         return userRole is not null;
     }
 
@@ -274,7 +279,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         try
         {
             await cnn.ExecuteAsync(this.queries.DeleteUserRole,
-                new { UserId = user.Id, NormalizedRoleName = normalizedRoleName }, tx);
+                new { UserId = user.Id, NormalizedRoleName = normalizedRoleName.AsVarChar(128) }, tx);
             await tx.CommitAsync(cancellationToken);
         }
         catch (Exception x) when (x is not OperationCanceledException)
@@ -296,7 +301,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         try
         {
             await cnn.ExecuteAsync(this.queries.DeleteUserLogin,
-                new { UserId = user.Id, LoginProvider = loginProvider, ProviderKey = providerKey }, tx);
+                new { UserId = user.Id, LoginProvider = loginProvider.AsVarChar(128), ProviderKey = providerKey.AsVarChar(128) }, tx);
             await tx.CommitAsync(cancellationToken);
         }
         catch (Exception x) when (x is not OperationCanceledException)
@@ -321,10 +326,10 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
                 new
                 {
                     UserId = user.Id,
-                    OldClaimType = claim.Type,
-                    OldClaimValue = claim.Value,
-                    NewClaimType = newClaim.Type,
-                    NewClaimValue = newClaim.Value,
+                    OldClaimType = claim.Type.AsVarChar(128),
+                    OldClaimValue = claim.Value.AsVarChar(128),
+                    NewClaimType = newClaim.Type.AsVarChar(128),
+                    NewClaimValue = newClaim.Value.AsVarChar(128),
                 }, tx);
             await tx.CommitAsync(cancellationToken);
         }
@@ -383,7 +388,8 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentException.ThrowIfNullOrWhiteSpace(normalizedRoleName);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
-        var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRole, new { NormalizedRoleName = normalizedRoleName });
+        var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRole, 
+            new { NormalizedRoleName = normalizedRoleName.AsVarChar(128) });
         return role;
     }
 
@@ -397,7 +403,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         var token = await cnn.QuerySingleOrDefaultAsync<IdentityUserToken<TKey>>(this.queries.SelectUserToken,
-            new { UserId = user.Id, LoginProvider = loginProvider, TokenName = name });
+            new { UserId = user.Id, LoginProvider = loginProvider.AsVarChar(128), TokenName = name.AsVarChar(128) });
         return token;
     }
 
@@ -420,7 +426,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         var login = await cnn.QuerySingleOrDefaultAsync<IdentityUserLogin<TKey>>(this.queries.SelectUserLoginByUser,
-            new { UserId = userId, LoginProvider = loginProvider, ProviderKey = providerKey });
+            new { UserId = userId, LoginProvider = loginProvider.AsVarChar(128), ProviderKey = providerKey.AsVarChar(128) });
         return login;
     }
 
@@ -433,7 +439,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
         var login = await cnn.QuerySingleOrDefaultAsync<IdentityUserLogin<TKey>>(this.queries.SelectUserLoginByProvider,
-            new { LoginProvider = loginProvider, ProviderKey = providerKey });
+            new { LoginProvider = loginProvider.AsVarChar(128), ProviderKey = providerKey.AsVarChar(128) });
         return login;
     }
 

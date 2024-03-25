@@ -42,7 +42,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         try
         {
             await cnn.ExecuteAsync(this.queries.InsertRoleClaim,
-                new { RoleId = role.Id, ClaimType = claim.Type, ClaimValue = claim.Value }, tx);
+                new { RoleId = role.Id, ClaimType = claim.Type.AsVarChar(128), ClaimValue = claim.Value.AsVarChar(128) }, tx);
             await tx.CommitAsync(cancellationToken);
         }
         catch (Exception x) when (x is not OperationCanceledException)
@@ -111,7 +111,8 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ArgumentNullException.ThrowIfNull(normalizedName);
 
         await using var cnn = await _db.OpenConnectionAsync(cancellationToken);
-        var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRoleByName, new { NormalizedName = normalizedName });
+        var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRoleByName, 
+            new { NormalizedName = normalizedName.AsVarChar(128) });
         return role;
     }
 
@@ -138,7 +139,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         try
         {
             await cnn.ExecuteAsync(this.queries.DeleteRoleClaim,
-                new { RoleId = role.Id, ClaimType = claim.Type, ClaimValue = claim.Value }, tx);
+                new { RoleId = role.Id, ClaimType = claim.Type.AsVarChar(128), ClaimValue = claim.Value.AsVarChar(128) }, tx);
             await tx.CommitAsync(cancellationToken);
         }
         catch (Exception x) when (x is not OperationCanceledException)
