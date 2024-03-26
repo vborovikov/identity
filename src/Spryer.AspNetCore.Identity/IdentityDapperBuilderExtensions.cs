@@ -21,15 +21,26 @@ public static class IdentityDapperBuilderExtensions
     {
         var optionsBuilder = builder.Services.AddOptions<DapperStoreOptions>();
         setupAction(optionsBuilder);
-        AddStores(builder.Services, builder.UserType, builder.RoleType);
+        AddStores(builder, optionsBuilder);
         return builder;
     }
 
-    private static void AddStores(IServiceCollection services, Type userType, Type? roleType)
+    private static void AddStores(IdentityBuilder identityBuilder, OptionsBuilder<DapperStoreOptions> optionsBuilder)
     {
+        var services = identityBuilder.Services;
+        var userType = identityBuilder.UserType;
+        var roleType = identityBuilder.RoleType;
+
         var identityUserType = FindGenericBaseType(userType, typeof(IdentityUser<>)) ??
             throw new InvalidOperationException($"{nameof(userType)} is not an IdentityUser<>.");
         var userKeyType = identityUserType.GenericTypeArguments[0];
+        if (userKeyType == typeof(string))
+        {
+            optionsBuilder.Configure(options =>
+            {
+                options.KeyRequiresDbString = true;
+            });
+        }
 
         if (roleType != null)
         {
