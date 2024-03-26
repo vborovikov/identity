@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 /// <typeparam name="TUserRole">The type of the class representing a user role.</typeparam>
 /// <typeparam name="TRoleClaim">The type of the class representing a role claim.</typeparam>
 public abstract class RoleStoreBase<TRole, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TKey, TUserRole, TRoleClaim> :
+    DapperStoreBase<TKey>,
     IRoleStore<TRole>,
     IRoleClaimStore<TRole>
     where TRole : IdentityRole<TKey>
@@ -24,19 +25,9 @@ public abstract class RoleStoreBase<TRole, [DynamicallyAccessedMembers(Dynamical
     /// Constructs a new instance of <see cref="RoleStoreBase{TRole, TKey, TUserRole, TRoleClaim}"/>.
     /// </summary>
     /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-    public RoleStoreBase(IdentityErrorDescriber describer)
+    public RoleStoreBase(IdentityErrorDescriber describer) : base(describer)
     {
-        ArgumentNullException.ThrowIfNull(describer);
-
-        ErrorDescriber = describer;
     }
-
-    private bool _disposed;
-
-    /// <summary>
-    /// Gets or sets the <see cref="IdentityErrorDescriber"/> for any error that occurred with the current operation.
-    /// </summary>
-    public IdentityErrorDescriber ErrorDescriber { get; set; }
 
     /// <summary>
     /// Creates a new role in a store as an asynchronous operation.
@@ -107,36 +98,6 @@ public abstract class RoleStoreBase<TRole, [DynamicallyAccessedMembers(Dynamical
     }
 
     /// <summary>
-    /// Converts the provided <paramref name="id"/> to a strongly typed key object.
-    /// </summary>
-    /// <param name="id">The id to convert.</param>
-    /// <returns>An instance of <typeparamref name="TKey"/> representing the provided <paramref name="id"/>.</returns>
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
-        Justification = "TKey is annoated with RequiresUnreferencedCodeAttribute.All.")]
-    public virtual TKey? ConvertIdFromString(string? id)
-    {
-        if (id == null)
-        {
-            return default(TKey);
-        }
-        return (TKey?)TypeDescriptor.GetConverter(typeof(TKey)).ConvertFromInvariantString(id);
-    }
-
-    /// <summary>
-    /// Converts the provided <paramref name="id"/> to its string representation.
-    /// </summary>
-    /// <param name="id">The id to convert.</param>
-    /// <returns>An <see cref="string"/> representation of the provided <paramref name="id"/>.</returns>
-    public virtual string? ConvertIdToString(TKey id)
-    {
-        if (id.Equals(default(TKey)))
-        {
-            return null;
-        }
-        return id.ToString();
-    }
-
-    /// <summary>
     /// Finds the role who has the specified ID as an asynchronous operation.
     /// </summary>
     /// <param name="id">The role ID to look for.</param>
@@ -181,19 +142,6 @@ public abstract class RoleStoreBase<TRole, [DynamicallyAccessedMembers(Dynamical
         role.NormalizedName = normalizedName;
         return Task.CompletedTask;
     }
-
-    /// <summary>
-    /// Throws if this class has been disposed.
-    /// </summary>
-    protected void ThrowIfDisposed()
-    {
-        ObjectDisposedException.ThrowIf(_disposed, this);
-    }
-
-    /// <summary>
-    /// Dispose the stores
-    /// </summary>
-    public void Dispose() => _disposed = true;
 
     /// <summary>
     /// Get the claims associated with the specified <paramref name="role"/> as an asynchronous operation.

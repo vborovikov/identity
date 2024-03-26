@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
 /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
 /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
 public abstract class UserStoreBase<TUser, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TKey, TUserClaim, TUserLogin, TUserToken> :
+    DapperStoreBase<TKey>,
     IUserLoginStore<TUser>,
     IUserClaimStore<TUser>,
     IUserPasswordStore<TUser>,
@@ -36,19 +37,9 @@ public abstract class UserStoreBase<TUser, [DynamicallyAccessedMembers(Dynamical
     /// Creates a new instance.
     /// </summary>
     /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-    public UserStoreBase(IdentityErrorDescriber describer)
+    public UserStoreBase(IdentityErrorDescriber describer) : base(describer)
     {
-        ArgumentNullException.ThrowIfNull(describer);
-
-        ErrorDescriber = describer;
     }
-
-    private bool _disposed;
-
-    /// <summary>
-    /// Gets or sets the <see cref="IdentityErrorDescriber"/> for any error that occurred with the current operation.
-    /// </summary>
-    public IdentityErrorDescriber ErrorDescriber { get; set; }
 
     /// <summary>
     /// Called to create a new instance of a <see cref="IdentityUserClaim{TKey}"/>.
@@ -208,36 +199,6 @@ public abstract class UserStoreBase<TUser, [DynamicallyAccessedMembers(Dynamical
     public abstract Task<TUser?> FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken));
 
     /// <summary>
-    /// Converts the provided <paramref name="id"/> to a strongly typed key object.
-    /// </summary>
-    /// <param name="id">The id to convert.</param>
-    /// <returns>An instance of <typeparamref name="TKey"/> representing the provided <paramref name="id"/>.</returns>
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
-        Justification = "TKey is annoated with RequiresUnreferencedCodeAttribute.All.")]
-    public virtual TKey? ConvertIdFromString(string? id)
-    {
-        if (id == null)
-        {
-            return default(TKey);
-        }
-        return (TKey?)TypeDescriptor.GetConverter(typeof(TKey)).ConvertFromInvariantString(id);
-    }
-
-    /// <summary>
-    /// Converts the provided <paramref name="id"/> to its string representation.
-    /// </summary>
-    /// <param name="id">The id to convert.</param>
-    /// <returns>An <see cref="string"/> representation of the provided <paramref name="id"/>.</returns>
-    public virtual string? ConvertIdToString(TKey id)
-    {
-        if (object.Equals(id, default(TKey)))
-        {
-            return null;
-        }
-        return id.ToString();
-    }
-
-    /// <summary>
     /// Finds and returns a user, if any, who has the specified normalized user name.
     /// </summary>
     /// <param name="normalizedUserName">The normalized user name to search for.</param>
@@ -316,22 +277,6 @@ public abstract class UserStoreBase<TUser, [DynamicallyAccessedMembers(Dynamical
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The user login if it exists.</returns>
     protected abstract Task<TUserLogin?> FindUserLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Throws if this class has been disposed.
-    /// </summary>
-    protected void ThrowIfDisposed()
-    {
-        ObjectDisposedException.ThrowIf(_disposed, this);
-    }
-
-    /// <summary>
-    /// Dispose the store
-    /// </summary>
-    public void Dispose()
-    {
-        _disposed = true;
-    }
 
     /// <summary>
     /// Get the claims associated with the specified <paramref name="user"/> as an asynchronous operation.

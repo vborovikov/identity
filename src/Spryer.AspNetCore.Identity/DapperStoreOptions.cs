@@ -5,4 +5,5 @@
 /// </summary>
 public class DapperStoreOptions
 {
+    internal bool KeyIsString { get; set; }
 }

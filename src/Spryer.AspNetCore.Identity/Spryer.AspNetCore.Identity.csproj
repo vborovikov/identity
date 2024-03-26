@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -29,6 +29,6 @@
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.3" />
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.3" />
-    <PackageReference Include="Spryer" Version="0.9.4" />
+    <PackageReference Include="Spryer" Version="0.9.5-beta.1" />
   </ItemGroup>	
 </Project>
