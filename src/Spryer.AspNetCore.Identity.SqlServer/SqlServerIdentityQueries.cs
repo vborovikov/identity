@@ -81,7 +81,7 @@ sealed class SqlServerIdentityQueries : IIdentityQueries
         where ur.UserId = @UserId and r.NormalizedName = @NormalizedRoleName;
         """;
 
-    public string DeleteUserClaims => 
+    public string DeleteUserClaim => 
         """
         delete from asp.UserClaims
         where UserId = @UserId and ClaimType = @ClaimType and ClaimValue = @ClaimValue;
@@ -136,7 +136,7 @@ sealed class SqlServerIdentityQueries : IIdentityQueries
         values (@UserId, @LoginProvider, @Name, @Value);
         """;
     
-    public string InsertUserClaims =>
+    public string InsertUserClaim =>
         """
         insert into asp.UserClaims (UserId, ClaimType, ClaimValue)
         values (@UserId, @ClaimType, @ClaimValue);

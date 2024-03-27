@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Spryer.AspNetCore.Identity" Version="0.1.0-beta.1" />
+    <PackageReference Include="Spryer.AspNetCore.Identity" Version="0.1.0-beta.2" />
   </ItemGroup>
 
 </Project>
