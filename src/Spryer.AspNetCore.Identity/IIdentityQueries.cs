@@ -41,7 +41,7 @@ public interface IIdentityQueries
     /// <summary>
     /// Gets the SQL query to insert a new user claim.
     /// </summary>
-    string InsertUserClaims { get; }
+    string InsertUserClaim { get; }
     /// <summary>
     /// Gets the SQL query to update an existing user claim.
     /// </summary>
@@ -49,7 +49,7 @@ public interface IIdentityQueries
     /// <summary>
     /// Gets the SQL query to delete an existing user claim.
     /// </summary>
-    string DeleteUserClaims { get; }
+    string DeleteUserClaim { get; }
     /// <summary>
     /// Gets the SQL query to select user claims.
     /// </summary>

@@ -48,7 +48,19 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         try
         {
             await cnn.ExecuteAsync(this.queries.InsertRoleClaim,
-                new { RoleId = role.Id, ClaimType = claim.Type.AsVarChar(128), ClaimValue = claim.Value.AsVarChar(128) }, tx);
+                this.options.KeyRequiresDbString ?
+                new
+                {
+                    RoleId = ConvertIdToDbString(role.Id),
+                    ClaimType = claim.Type.AsVarChar(128),
+                    ClaimValue = claim.Value.AsVarChar(128)
+                } :
+                new
+                {
+                    RoleId = role.Id,
+                    ClaimType = claim.Type.AsVarChar(128),
+                    ClaimValue = claim.Value.AsVarChar(128)
+                }, tx);
             await tx.CommitAsync(cancellationToken);
         }
         catch (Exception x) when (x is not OperationCanceledException)
@@ -67,7 +79,23 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
-            await cnn.ExecuteAsync(this.queries.InsertRole, role, tx);
+            await cnn.ExecuteAsync(this.queries.InsertRole,
+                this.options.KeyRequiresDbString ?
+                new
+                {
+                    Id = ConvertIdToDbString(role.Id),
+                    Name = role.Name.AsVarChar(128),
+                    NormalizedName = role.NormalizedName.AsVarChar(128),
+                    ConcurrencyStamp = role.ConcurrencyStamp.AsVarChar(128),
+                } :
+                new
+                {
+                    RoleId = role.Id,
+                    Name = role.Name.AsVarChar(128),
+                    NormalizedName = role.NormalizedName.AsVarChar(128),
+                    ConcurrencyStamp = role.ConcurrencyStamp.AsVarChar(128),
+                }, tx);
+
             await tx.CommitAsync(cancellationToken);
             return IdentityResult.Success;
         }
@@ -88,7 +116,17 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
-            await cnn.ExecuteAsync(this.queries.DeleteRole, new { RoleId = role.Id }, tx);
+            await cnn.ExecuteAsync(this.queries.DeleteRole,
+                this.options.KeyRequiresDbString ?
+                new
+                {
+                    RoleId = ConvertIdToDbString(role.Id)
+                } :
+                new
+                {
+                    RoleId = role.Id
+                }, tx);
+
             await tx.CommitAsync(cancellationToken);
             return IdentityResult.Success;
         }
@@ -106,7 +144,17 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ArgumentNullException.ThrowIfNull(id);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
-        var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRoleById, new { RoleId = id });
+        var roleId = ConvertIdFromString(id);
+        var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRoleById,
+            this.options.KeyRequiresDbString ?
+            new
+            {
+                RoleId = ConvertIdToDbString(roleId!)
+            } :
+            new
+            {
+                RoleId = roleId
+            });
         return role;
     }
 
@@ -117,8 +165,11 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ArgumentNullException.ThrowIfNull(normalizedName);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
-        var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRoleByName, 
-            new { NormalizedName = normalizedName.AsVarChar(128) });
+        var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRoleByName,
+            new
+            {
+                NormalizedName = normalizedName.AsVarChar(128)
+            });
         return role;
     }
 
@@ -129,7 +180,16 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ArgumentNullException.ThrowIfNull(role);
 
         await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
-        var claims = await cnn.QueryAsync<IdentityRoleClaim<TKey>>(this.queries.SelectRoleClaims, new { RoleId = role.Id });
+        var claims = await cnn.QueryAsync<IdentityRoleClaim<TKey>>(this.queries.SelectRoleClaims,
+            this.options.KeyRequiresDbString ?
+            new
+            {
+                RoleId = ConvertIdToDbString(role.Id)
+            } :
+            new
+            {
+                RoleId = role.Id
+            });
         return claims.Select(rc => rc.ToClaim()).ToArray();
     }
 
@@ -145,7 +205,19 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         try
         {
             await cnn.ExecuteAsync(this.queries.DeleteRoleClaim,
-                new { RoleId = role.Id, ClaimType = claim.Type.AsVarChar(128), ClaimValue = claim.Value.AsVarChar(128) }, tx);
+                this.options.KeyRequiresDbString ?
+                new
+                {
+                    RoleId = ConvertIdToDbString(role.Id),
+                    ClaimType = claim.Type.AsVarChar(128),
+                    ClaimValue = claim.Value.AsVarChar(128)
+                } :
+                new
+                {
+                    RoleId = role.Id,
+                    ClaimType = claim.Type.AsVarChar(128),
+                    ClaimValue = claim.Value.AsVarChar(128)
+                }, tx);
             await tx.CommitAsync(cancellationToken);
         }
         catch (Exception x) when (x is not OperationCanceledException)
@@ -165,7 +237,24 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         try
         {
             role.ConcurrencyStamp = Guid.NewGuid().ToString();
-            await cnn.ExecuteAsync(this.queries.UpdateRole, role, tx);
+
+            await cnn.ExecuteAsync(this.queries.UpdateRole,
+                this.options.KeyRequiresDbString ?
+                new
+                {
+                    Id = ConvertIdToDbString(role.Id),
+                    Name = role.Name.AsVarChar(128),
+                    NormalizedName = role.NormalizedName.AsVarChar(128),
+                    ConcurrencyStamp = role.ConcurrencyStamp.AsVarChar(128),
+                } :
+                new
+                {
+                    RoleId = role.Id,
+                    Name = role.Name.AsVarChar(128),
+                    NormalizedName = role.NormalizedName.AsVarChar(128),
+                    ConcurrencyStamp = role.ConcurrencyStamp.AsVarChar(128),
+                }, tx);
+
             await tx.CommitAsync(cancellationToken);
             return IdentityResult.Success;
         }
