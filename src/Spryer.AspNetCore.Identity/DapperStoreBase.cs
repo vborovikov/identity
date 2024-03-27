@@ -82,6 +82,6 @@ public abstract class DapperStoreBase<TKey> : IDisposable
     /// <returns>An <see cref="DbString"/> representation of the provided <paramref name="id"/>.</returns>
     protected virtual DbString ConvertIdToDbString(TKey id)
     {
-        return ConvertIdToString(id).AsVarChar(36);
+        return ConvertIdToString(id).AsChar(36);
     }
 }
