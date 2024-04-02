@@ -17,7 +17,7 @@ sealed class SqlServerIdentityQueries : IIdentityQueries
     public string DeleteUser => 
         """
         delete from asp.Users
-        where Id = @UserId";
+        where Id = @UserId;
         """;
 
     public string SelectUserByEmail => 
@@ -31,7 +31,7 @@ sealed class SqlServerIdentityQueries : IIdentityQueries
         """
         select u.* 
         from asp.Users u 
-        where u.NormalizedUserName = @NormalizedUserName";
+        where u.NormalizedUserName = @NormalizedUserName;
         """;
 
     public string SelectUserClaims => 
