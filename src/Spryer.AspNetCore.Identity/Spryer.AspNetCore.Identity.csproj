@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>Spryer.AspNetCore.Identity</Title>
-    <Description>ASP.NET Core Identity provider with non-IQueryable stores</Description>
+    <Description>ASP.NET Core Identity storage provider with non-IQueryable stores</Description>
   </PropertyGroup>
 
   <PropertyGroup>

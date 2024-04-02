@@ -1,5 +1,5 @@
 # Spryer.AspNetCore.Identity
-ASP.NET Core Identity provider that uses Dapper.
+ASP.NET Core Identity storage provider that uses Dapper.
 
 ## Usage
 
@@ -22,7 +22,6 @@ public sealed class AppRole : IdentityRole<Guid>
         this.Id = Guid.NewGuid();
     }
 }
-
 
 builder.Services
     .AddIdentity<AppUser, AppRole>(options => options.SignIn.RequireConfirmedAccount = false)
