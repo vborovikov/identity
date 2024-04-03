@@ -4,19 +4,19 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Title>Spryer.AspNetCore.Identity</Title>
-    <Description>ASP.NET Core Identity storage provider with non-IQueryable stores</Description>
+    <Title>Spryer.AspNetCore.Identity.Sqlite</Title>
+    <Description>ASP.NET Core Identity storage provider with non-IQueryable stores in SQLite</Description>
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>Spryer.AspNetCore.Identity</PackageId>
+    <PackageId>Spryer.AspNetCore.Identity.Sqlite</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/vborovikov/identity</PackageProjectUrl>
     <RepositoryUrl>https://github.com/vborovikov/identity.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>identity;aspnetcore</PackageTags>
+    <PackageTags>identity;aspnetcore;sqlite</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
@@ -26,9 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.35" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.3" />
-    <PackageReference Include="Spryer" Version="0.9.5" />
-  </ItemGroup>	
+    <PackageReference Include="Spryer.AspNetCore.Identity" Version="0.1.0-beta" />
+  </ItemGroup>
+
 </Project>
