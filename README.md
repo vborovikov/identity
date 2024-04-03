@@ -1,5 +1,5 @@
 # Spryer.AspNetCore.Identity
-ASP.NET Core Identity storage providers that uses Dapper.
+ASP.NET Core Identity storage providers that use Dapper.
 
 ## Packages
 
