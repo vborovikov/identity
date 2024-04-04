@@ -1,4 +1,4 @@
-﻿namespace Spryer.AspNetCore.Identity.SqlServer;
+namespace Spryer.AspNetCore.Identity.SqlServer;
 
 sealed class SqlServerIdentityQueries : IIdentityQueries
 {
@@ -12,98 +12,6 @@ sealed class SqlServerIdentityQueries : IIdentityQueries
             @Id,@UserName,@NormalizedUserName,@Email,@NormalizedEmail,@EmailConfirmed,
             @PasswordHash,@SecurityStamp,@ConcurrencyStamp,@PhoneNumber,@PhoneNumberConfirmed,
             @TwoFactorEnabled,@LockoutEnd,@LockoutEnabled,@AccessFailedCount);
-        """;
-
-    public string DeleteUser => 
-        """
-        delete from asp.Users
-        where Id = @UserId;
-        """;
-
-    public string SelectUserByEmail => 
-        """
-        select u.* 
-        from asp.Users u 
-        where u.NormalizedEmail = @NormalizedEmail;
-        """;
-
-    public string SelectUserByName => 
-        """
-        select u.* 
-        from asp.Users u 
-        where u.NormalizedUserName = @NormalizedUserName;
-        """;
-
-    public string SelectUserClaims => 
-        """
-        select uc.*
-        from asp.UserClaims uc
-        where uc.UserId = @UserId;
-        """;
-
-    public string SelectUserLogins => 
-        """
-        select ul.*
-        from asp.UserLogins ul
-        where ul.UserId = @UserId;
-        """;
-
-    public string SelectUserRoles => 
-        """
-        select r.Name 
-        from asp.Roles r
-        inner join asp.UserRoles ur on ur.RoleId = r.Id
-        where ur.UserId = @UserId;
-        """;
-
-    public string SelectUsersByClaim => 
-        """
-        select u.* 
-        from asp.Users u
-        inner join asp.UserClaims uc on u.Id = uc.UserId
-        where uc.ClaimVlaue = @ClaimValue and uc.ClaimType = @ClaimType;
-        """;
-
-    public string SelectUsersInRole => 
-        """
-        select u.* 
-        from asp.Users u
-        inner join asp.UserRoles ur on u.Id = ur.UserId
-        inner join asp.Roles r on r.Id = ur.RoleId
-        where r.NormalizedName = @NormalizedRoleName;
-        """;
-
-    public string SelectUserRole => 
-        """
-        select ur.*
-        from asp.UserRoles ur
-        inner join asp.Roles r on r.Id = ur.RoleId
-        where ur.UserId = @UserId and r.NormalizedName = @NormalizedRoleName;
-        """;
-
-    public string DeleteUserClaim => 
-        """
-        delete from asp.UserClaims
-        where UserId = @UserId and ClaimType = @ClaimType and ClaimValue = @ClaimValue;
-        """;
-
-    public string DeleteUserRole => 
-        """
-        delete from asp.UserRoles
-        where UserId = @UserId and RoleId = (select r.Id from asp.Roles r where r.NormalizedName = @NormalizedRoleName);
-        """;
-
-    public string DeleteUserLogin => 
-        """
-        delete from asp.UserLogins
-        where UserId = @UserId and LoginProvider = @LoginProvider and ProviderKey = @ProviderKey;
-        """;
-
-    public string UpdateUserClaim => 
-        """
-        update asp.UserClaims
-        set ClaimType = @NewClaimType, ClaimValue = @NewClaimValue
-        where UserId = @UserId and ClaimType = @OldClaimType and ClaimValue = @OldClaimValue;
         """;
 
     public string UpdateUser => 
@@ -124,22 +32,74 @@ sealed class SqlServerIdentityQueries : IIdentityQueries
         where [Id] = @Id;
         """;
 
-    public string InsertUserRole =>
+    public string DeleteUser => 
         """
-        insert into asp.UserRoles (UserId, RoleId)
-        values (@UserId, @RoleId);
+        delete from asp.Users
+        where Id = @UserId;
         """;
 
-    public string InsertUserToken =>
+    public string SelectUser => 
         """
-        insert into asp.UserTokens (UserId, LoginProvider, Name, [Value])
-        values (@UserId, @LoginProvider, @Name, @Value);
+        select u.*
+        from asp.Users u
+        where u.Id = @UserId;
         """;
-    
+
+    public string SelectUserByEmail => 
+        """
+        select u.* 
+        from asp.Users u 
+        where u.NormalizedEmail = @NormalizedEmail;
+        """;
+
+    public string SelectUserByName => 
+        """
+        select u.* 
+        from asp.Users u 
+        where u.NormalizedUserName = @NormalizedUserName;
+        """;
+
+    public string SelectUsersByClaim => 
+        """
+        select u.* 
+        from asp.Users u
+        inner join asp.UserClaims uc on u.Id = uc.UserId
+        where uc.ClaimVlaue = @ClaimValue and uc.ClaimType = @ClaimType;
+        """;
+
+    public string SelectUsersInRole => 
+        """
+        select u.* 
+        from asp.Users u
+        inner join asp.UserRoles ur on u.Id = ur.UserId
+        inner join asp.Roles r on r.Id = ur.RoleId
+        where r.NormalizedName = @NormalizedRoleName;
+        """;
+
     public string InsertUserClaim =>
         """
         insert into asp.UserClaims (UserId, ClaimType, ClaimValue)
         values (@UserId, @ClaimType, @ClaimValue);
+        """;
+
+    public string UpdateUserClaim => 
+        """
+        update asp.UserClaims
+        set ClaimType = @NewClaimType, ClaimValue = @NewClaimValue
+        where UserId = @UserId and ClaimType = @OldClaimType and ClaimValue = @OldClaimValue;
+        """;
+
+    public string DeleteUserClaim => 
+        """
+        delete from asp.UserClaims
+        where UserId = @UserId and ClaimType = @ClaimType and ClaimValue = @ClaimValue;
+        """;
+
+    public string SelectUserClaims => 
+        """
+        select uc.*
+        from asp.UserClaims uc
+        where uc.UserId = @UserId;
         """;
 
     public string InsertUserLogin =>
@@ -148,25 +108,17 @@ sealed class SqlServerIdentityQueries : IIdentityQueries
         values (@UserId, @LoginProvider, @ProviderKey, @ProviderDisplayName);
         """;
 
-    public string SelectRole => 
+    public string DeleteUserLogin => 
         """
-        select r.*
-        from asp.Roles r 
-        where r.NormalizedName = @NormalizedRoleName;
+        delete from asp.UserLogins
+        where UserId = @UserId and LoginProvider = @LoginProvider and ProviderKey = @ProviderKey;
         """;
 
-    public string SelectUserToken => 
+    public string SelectUserLogins => 
         """
-        select ut.*
-        from asp.UserTokens ut 
-        where ut.UserId = @UserId and ut.LoginProvider = @LoginProvider and ut.Name = @TokenName;
-        """;
-
-    public string SelectUser => 
-        """
-        select u.*
-        from asp.Users u
-        where u.Id = @UserId;
+        select ul.*
+        from asp.UserLogins ul
+        where ul.UserId = @UserId;
         """;
 
     public string SelectUserLoginByUser => 
@@ -183,23 +135,23 @@ sealed class SqlServerIdentityQueries : IIdentityQueries
         where ul.LoginProvider = @LoginProvider and ul.ProviderKey = @ProviderKey;
         """;
 
-    public string SelectUserRoleByIds =>
+    public string InsertUserToken =>
         """
-        select ur.*
-        from asp.UserRoles ur 
-        where ur.UserId = @UserId and ur.RoleId = @RoleId;
+        insert into asp.UserTokens (UserId, LoginProvider, Name, [Value])
+        values (@UserId, @LoginProvider, @Name, @Value);
         """;
-
+    
     public string DeleteUserToken => 
         """
         delete from asp.UserTokens
         where UserId = @UserId and LoginProvider = @LoginProvider and Name = @Name;
         """;
 
-    public string InsertRoleClaim => 
+    public string SelectUserToken => 
         """
-        insert into asp.RoleClaims (RoleId, ClaimType, ClaimValue)
-        values (@RoleId, @ClaimType, @ClaimValue);
+        select ut.*
+        from asp.UserTokens ut 
+        where ut.UserId = @UserId and ut.LoginProvider = @LoginProvider and ut.Name = @TokenName;
         """;
 
     public string InsertRole => 
@@ -208,10 +160,24 @@ sealed class SqlServerIdentityQueries : IIdentityQueries
         values (@Id, @Name, @NormalizedName, @ConcurrencyStamp);
         """;
 
+    public string UpdateRole => 
+        """
+        update asp.Roles
+        set Name = @Name, NormalizedName = @NormalizedName, ConcurrencyStamp = @ConcurrencyStamp
+        where Id = @Id;
+        """;
+
     public string DeleteRole => 
         """
         delete from asp.Roles
         where Id = @RoleId;
+        """;
+
+    public string SelectRole => 
+        """
+        select r.*
+        from asp.Roles r 
+        where r.NormalizedName = @NormalizedRoleName;
         """;
 
     public string SelectRoleById => 
@@ -228,11 +194,10 @@ sealed class SqlServerIdentityQueries : IIdentityQueries
         where r.NormalizedName = @NormalizedRoleName;
         """;
 
-    public string SelectRoleClaims => 
+    public string InsertRoleClaim => 
         """
-        select rc.*
-        from asp.RoleClaims rc
-        where rc.RoleId = @RoleId;
+        insert into asp.RoleClaims (RoleId, ClaimType, ClaimValue)
+        values (@RoleId, @ClaimType, @ClaimValue);
         """;
 
     public string DeleteRoleClaim => 
@@ -241,10 +206,45 @@ sealed class SqlServerIdentityQueries : IIdentityQueries
         where RoleId = @RoleId and ClaimType = @ClaimType and ClaimValue = @ClaimValue;
         """;
 
-    public string UpdateRole => 
+    public string SelectRoleClaims => 
         """
-        update asp.Roles
-        set Name = @Name, NormalizedName = @NormalizedName, ConcurrencyStamp = @ConcurrencyStamp
-        where Id = @Id;
+        select rc.*
+        from asp.RoleClaims rc
+        where rc.RoleId = @RoleId;
+        """;
+
+    public string InsertUserRole =>
+        """
+        insert into asp.UserRoles (UserId, RoleId)
+        values (@UserId, @RoleId);
+        """;
+
+    public string DeleteUserRole => 
+        """
+        delete from asp.UserRoles
+        where UserId = @UserId and RoleId = (select r.Id from asp.Roles r where r.NormalizedName = @NormalizedRoleName);
+        """;
+
+    public string SelectUserRole => 
+        """
+        select ur.*
+        from asp.UserRoles ur
+        inner join asp.Roles r on r.Id = ur.RoleId
+        where ur.UserId = @UserId and r.NormalizedName = @NormalizedRoleName;
+        """;
+
+    public string SelectUserRoles => 
+        """
+        select r.Name 
+        from asp.Roles r
+        inner join asp.UserRoles ur on ur.RoleId = r.Id
+        where ur.UserId = @UserId;
+        """;
+
+    public string SelectUserRoleByIds =>
+        """
+        select ur.*
+        from asp.UserRoles ur 
+        where ur.UserId = @UserId and ur.RoleId = @RoleId;
         """;
 }

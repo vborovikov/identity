@@ -77,27 +77,6 @@ public interface IIdentityQueries
     string SelectUserLoginByProvider { get; }
 
     /// <summary>
-    /// Gets the SQL query to insert a new user role.
-    /// </summary>
-    string InsertUserRole { get; }
-    /// <summary>
-    /// Gets the SQL query to delete an existing user role.
-    /// </summary>
-    string DeleteUserRole { get; }
-    /// <summary>
-    /// Gets the SQL query to select a single user role.
-    /// </summary>
-    string SelectUserRole { get; }
-    /// <summary>
-    /// Gets the SQL query to select user roles.
-    /// </summary>
-    string SelectUserRoles { get; }
-    /// <summary>
-    /// Gets the SQL query to select user roles by IDs.
-    /// </summary>
-    string SelectUserRoleByIds { get; }
-
-    /// <summary>
     /// Gets the SQL query to insert a new user token.
     /// </summary>
     string InsertUserToken { get; }
@@ -147,4 +126,25 @@ public interface IIdentityQueries
     /// Gets the SQL query to select role claims.
     /// </summary>
     string SelectRoleClaims { get; }
+
+    /// <summary>
+    /// Gets the SQL query to insert a new user role.
+    /// </summary>
+    string InsertUserRole { get; }
+    /// <summary>
+    /// Gets the SQL query to delete an existing user role.
+    /// </summary>
+    string DeleteUserRole { get; }
+    /// <summary>
+    /// Gets the SQL query to select a single user role.
+    /// </summary>
+    string SelectUserRole { get; }
+    /// <summary>
+    /// Gets the SQL query to select user roles.
+    /// </summary>
+    string SelectUserRoles { get; }
+    /// <summary>
+    /// Gets the SQL query to select user roles by user and role IDs.
+    /// </summary>
+    string SelectUserRoleByIds { get; }
 }
