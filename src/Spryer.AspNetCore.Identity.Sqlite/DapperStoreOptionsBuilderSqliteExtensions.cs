@@ -1,6 +1,6 @@
 ﻿namespace Spryer.AspNetCore.Identity.Sqlite;
 
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 /// <summary>
@@ -15,7 +15,7 @@ public static class DapperStoreOptionsBuilderSqliteExtensions
     /// <returns>The <see cref="OptionsBuilder{DapperStoreOptions}"/> so that additional calls can be chained.</returns>
     public static OptionsBuilder<DapperStoreOptions> UseSqlite(this OptionsBuilder<DapperStoreOptions> builder)
     {
-        builder.Services.AddScoped<IIdentityQueries, SqliteIdentityQueries>();
+        builder.Services.TryAddSingleton<IIdentityQueries, SqliteIdentityQueries>();
         return builder;
     }
 }

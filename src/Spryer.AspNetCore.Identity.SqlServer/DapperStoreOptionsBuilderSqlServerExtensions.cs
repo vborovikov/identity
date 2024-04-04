@@ -1,6 +1,6 @@
 ﻿namespace Spryer.AspNetCore.Identity.SqlServer;
 
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 /// <summary>
@@ -15,7 +15,7 @@ public static class DapperStoreOptionsBuilderSqlServerExtensions
     /// <returns>The <see cref="OptionsBuilder{DapperStoreOptions}"/> so that additional calls can be chained.</returns>
     public static OptionsBuilder<DapperStoreOptions> UseSqlServer(this OptionsBuilder<DapperStoreOptions> builder)
     {
-        builder.Services.AddScoped<IIdentityQueries, SqlServerIdentityQueries>();
+        builder.Services.TryAddSingleton<IIdentityQueries, SqlServerIdentityQueries>();
         return builder;
     }
 
@@ -29,7 +29,7 @@ public static class DapperStoreOptionsBuilderSqlServerExtensions
     public static OptionsBuilder<DapperStoreOptions> UseSqlServer(this OptionsBuilder<DapperStoreOptions> builder,
         string dbSchema, string? tableNamePrefix = default)
     {
-        builder.Services.AddScoped<IIdentityQueries>(_ => new SqlServerIdentityQueries
+        builder.Services.TryAddSingleton<IIdentityQueries>(_ => new SqlServerIdentityQueries
         {
             Schema = dbSchema,
             Prefix = tableNamePrefix ?? string.Empty,
