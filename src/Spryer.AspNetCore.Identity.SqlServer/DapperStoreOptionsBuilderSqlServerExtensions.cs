@@ -18,4 +18,23 @@ public static class DapperStoreOptionsBuilderSqlServerExtensions
         builder.Services.AddScoped<IIdentityQueries, SqlServerIdentityQueries>();
         return builder;
     }
+
+    /// <summary>
+    /// Configures the Dapper stores to use a SQL Server database with a specific database schema.
+    /// </summary>
+    /// <param name="builder">The <see cref="OptionsBuilder{DapperStoreOptions}"/> to configure.</param>
+    /// <param name="dbSchema">The database schema name to use.</param>
+    /// <param name="tableNamePrefix">The table name prefix.</param>
+    /// <returns>The <see cref="OptionsBuilder{DapperStoreOptions}"/> so that additional calls can be chained.</returns>
+    public static OptionsBuilder<DapperStoreOptions> UseSqlServer(this OptionsBuilder<DapperStoreOptions> builder,
+        string dbSchema, string? tableNamePrefix = default)
+    {
+        builder.Services.AddScoped<IIdentityQueries>(_ => new SqlServerIdentityQueries
+        {
+            Schema = dbSchema,
+            Prefix = tableNamePrefix ?? string.Empty,
+        });
+
+        return builder;
+    }
 }
