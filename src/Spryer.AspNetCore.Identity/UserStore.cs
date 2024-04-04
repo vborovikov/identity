@@ -1,7 +1,6 @@
 ﻿namespace Spryer.AspNetCore.Identity;
 
 using System;
-using System.Data.Common;
 using System.Security.Claims;
 using System.Threading;
 using Dapper;
@@ -21,24 +20,18 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     where TRole : IdentityRole<TKey>
     where TKey : IEquatable<TKey>
 {
-    private readonly DapperStoreOptions options;
     private readonly IIdentityQueries queries;
-    private readonly DbDataSource db;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserStore{TUser, TRole, TKey}"/> class.
     /// </summary>
     /// <param name="options">The store options.</param>
-    /// <param name="identityQueries">The SQL queries used to access the store.</param>
-    /// <param name="dbDataSource">The <see cref="DbDataSource"/> used to access the store.</param>
     /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-    public UserStore(IOptions<DapperStoreOptions> options, IIdentityQueries identityQueries, DbDataSource dbDataSource, IdentityErrorDescriber describer) : base(describer)
+    public UserStore(IOptions<DapperStoreOptions> options, IdentityErrorDescriber? describer = null)
+        : base(options.Value, describer ?? new())
     {
-        ArgumentNullException.ThrowIfNull(identityQueries);
-        ArgumentNullException.ThrowIfNull(dbDataSource);
-        this.options = options.Value;
-        this.queries = identityQueries;
-        this.db = dbDataSource;
+        ArgumentNullException.ThrowIfNull(options.Value.Queries);
+        this.queries = options.Value.Queries;
     }
 
     /// <inheritdoc/>
@@ -48,14 +41,14 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(claims);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
             foreach (var claim in claims)
             {
                 await cnn.ExecuteAsync(this.queries.InsertUserClaim,
-                    this.options.KeyRequiresDbString ?
+                    this.KeyRequiresDbString ?
                     new
                     {
                         UserId = ConvertIdToDbString(user.Id),
@@ -84,12 +77,12 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(login);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
             await cnn.ExecuteAsync(this.queries.InsertUserLogin,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     UserId = ConvertIdToDbString(user.Id),
@@ -119,7 +112,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(normalizedRoleName);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var role =
             await cnn.QueryFirstOrDefaultAsync<TRole>(this.queries.SelectRoleByName,
                 new
@@ -132,7 +125,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         try
         {
             await cnn.ExecuteAsync(this.queries.InsertUserRole,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     UserId = ConvertIdToDbString(user.Id),
@@ -158,12 +151,12 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
             await cnn.ExecuteAsync(this.queries.InsertUser,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     Id = ConvertIdToDbString(user.Id),
@@ -217,12 +210,12 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
             await cnn.ExecuteAsync(this.queries.DeleteUser,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     UserId = ConvertIdToDbString(user.Id)
@@ -248,7 +241,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(normalizedEmail);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var user = await cnn.QuerySingleOrDefaultAsync<TUser>(this.queries.SelectUserByEmail,
             new
             {
@@ -272,7 +265,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(normalizedUserName);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var user = await cnn.QuerySingleOrDefaultAsync<TUser>(this.queries.SelectUserByName,
             new
             {
@@ -287,9 +280,9 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var userClaims = await cnn.QueryAsync<IdentityUserClaim<TKey>>(this.queries.SelectUserClaims,
-            this.options.KeyRequiresDbString ?
+            this.KeyRequiresDbString ?
             new
             {
                 UserId = ConvertIdToDbString(user.Id)
@@ -307,9 +300,9 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var userLogins = await cnn.QueryAsync<IdentityUserLogin<TKey>>(this.queries.SelectUserLogins,
-            this.options.KeyRequiresDbString ?
+            this.KeyRequiresDbString ?
             new
             {
                 UserId = ConvertIdToDbString(user.Id)
@@ -327,9 +320,9 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var userRoles = await cnn.QueryAsync<string>(this.queries.SelectUserRoles,
-            this.options.KeyRequiresDbString ?
+            this.KeyRequiresDbString ?
             new
             {
                 UserId = ConvertIdToDbString(user.Id)
@@ -347,7 +340,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(claim);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var users = await cnn.QueryAsync<TUser>(this.queries.SelectUsersByClaim,
             new
             {
@@ -364,7 +357,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(normalizedRoleName);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var users = await cnn.QueryAsync<TUser>(this.queries.SelectUsersInRole,
             new
             {
@@ -381,9 +374,9 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(normalizedRoleName);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var userRole = await cnn.QueryFirstOrDefaultAsync<IdentityUserRole<TKey>>(this.queries.SelectUserRole,
-            this.options.KeyRequiresDbString ?
+            this.KeyRequiresDbString ?
             new
             {
                 UserId = ConvertIdToDbString(user.Id),
@@ -404,14 +397,14 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(claims);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
             foreach (var claim in claims)
             {
                 await cnn.ExecuteAsync(this.queries.DeleteUserClaim,
-                    this.options.KeyRequiresDbString ?
+                    this.KeyRequiresDbString ?
                     new
                     {
                         UserId = ConvertIdToDbString(user.Id),
@@ -441,12 +434,12 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(normalizedRoleName);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
             await cnn.ExecuteAsync(this.queries.DeleteUserRole,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     UserId = ConvertIdToDbString(user.Id),
@@ -473,12 +466,12 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(loginProvider);
         ArgumentNullException.ThrowIfNull(providerKey);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
             await cnn.ExecuteAsync(this.queries.DeleteUserLogin,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     UserId = ConvertIdToDbString(user.Id),
@@ -507,12 +500,12 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(claim);
         ArgumentNullException.ThrowIfNull(newClaim);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
             await cnn.ExecuteAsync(this.queries.UpdateUserClaim,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     UserId = ConvertIdToDbString(user.Id),
@@ -543,14 +536,14 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
             user.ConcurrencyStamp = Guid.NewGuid().ToString();
 
             await cnn.ExecuteAsync(this.queries.UpdateUser,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     Id = ConvertIdToDbString(user.Id),
@@ -604,12 +597,12 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(token);
 
-        await using var cnn = await this.db.OpenConnectionAsync();
-        await using var tx = await cnn.BeginTransactionAsync();
+        await using var cnn = await OpenDbConnectionAsync(default);
+        await using var tx = await cnn.BeginTransactionAsync(default);
         try
         {
             await cnn.ExecuteAsync(this.queries.InsertUserToken,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     UserId = ConvertIdToDbString(token.UserId),
@@ -639,7 +632,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ThrowIfDisposed();
         ArgumentException.ThrowIfNullOrWhiteSpace(normalizedRoleName);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRole,
             new
             {
@@ -656,9 +649,9 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(loginProvider);
         ArgumentNullException.ThrowIfNull(name);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var token = await cnn.QuerySingleOrDefaultAsync<IdentityUserToken<TKey>>(this.queries.SelectUserToken,
-            this.options.KeyRequiresDbString ?
+            this.KeyRequiresDbString ?
             new
             {
                 UserId = ConvertIdToDbString(user.Id),
@@ -679,9 +672,9 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     {
         ThrowIfDisposed();
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var user = await cnn.QuerySingleOrDefaultAsync<TUser>(this.queries.SelectUser,
-            this.options.KeyRequiresDbString ?
+            this.KeyRequiresDbString ?
             new
             {
                 UserId = ConvertIdToDbString(userId)
@@ -700,9 +693,9 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(loginProvider);
         ArgumentNullException.ThrowIfNull(providerKey);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var login = await cnn.QuerySingleOrDefaultAsync<IdentityUserLogin<TKey>>(this.queries.SelectUserLoginByUser,
-            this.options.KeyRequiresDbString ?
+            this.KeyRequiresDbString ?
             new
             {
                 UserId = ConvertIdToDbString(userId),
@@ -725,7 +718,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ArgumentNullException.ThrowIfNull(loginProvider);
         ArgumentNullException.ThrowIfNull(providerKey);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var login = await cnn.QuerySingleOrDefaultAsync<IdentityUserLogin<TKey>>(this.queries.SelectUserLoginByProvider,
             new
             {
@@ -740,9 +733,9 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     {
         ThrowIfDisposed();
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var userRole = await cnn.QuerySingleOrDefaultAsync<IdentityUserRole<TKey>>(this.queries.SelectUserRoleByIds,
-            this.options.KeyRequiresDbString ?
+            this.KeyRequiresDbString ?
             new
             {
                 UserId = ConvertIdToDbString(userId),
@@ -762,12 +755,12 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(token);
 
-        await using var cnn = await this.db.OpenConnectionAsync();
-        await using var tx = await cnn.BeginTransactionAsync();
+        await using var cnn = await OpenDbConnectionAsync(default);
+        await using var tx = await cnn.BeginTransactionAsync(default);
         try
         {
             await cnn.ExecuteAsync(this.queries.DeleteUserToken,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     UserId = ConvertIdToDbString(token.UserId),

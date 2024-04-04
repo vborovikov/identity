@@ -36,8 +36,9 @@ public abstract class UserStoreBase<TUser, [DynamicallyAccessedMembers(Dynamical
     /// <summary>
     /// Creates a new instance.
     /// </summary>
+    /// <param name="options">The <see cref="DapperStoreOptions"/> used to configure the store.</param>
     /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-    public UserStoreBase(IdentityErrorDescriber describer) : base(describer)
+    public UserStoreBase(DapperStoreOptions options, IdentityErrorDescriber describer) : base(options, describer)
     {
     }
 
@@ -938,8 +939,9 @@ public abstract class UserStoreBase<TUser, TRole, [DynamicallyAccessedMembers(Dy
     /// <summary>
     /// Creates a new instance.
     /// </summary>
+    /// <param name="options">The <see cref="DapperStoreOptions"/> used to configure the store.</param>
     /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-    public UserStoreBase(IdentityErrorDescriber describer) : base(describer) { }
+    public UserStoreBase(DapperStoreOptions options, IdentityErrorDescriber describer) : base(options, describer) { }
 
     /// <summary>
     /// Called to create a new instance of a <see cref="IdentityUserRole{TKey}"/>.

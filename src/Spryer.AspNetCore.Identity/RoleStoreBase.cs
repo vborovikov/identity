@@ -24,8 +24,9 @@ public abstract class RoleStoreBase<TRole, [DynamicallyAccessedMembers(Dynamical
     /// <summary>
     /// Constructs a new instance of <see cref="RoleStoreBase{TRole, TKey, TUserRole, TRoleClaim}"/>.
     /// </summary>
+    /// <param name="options">The <see cref="DapperStoreOptions"/> used to configure the store.</param>
     /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-    public RoleStoreBase(IdentityErrorDescriber describer) : base(describer)
+    public RoleStoreBase(DapperStoreOptions options, IdentityErrorDescriber describer) : base(options, describer)
     {
     }
 

@@ -1,6 +1,5 @@
 ﻿namespace Spryer.AspNetCore.Identity;
 
-using System.Data.Common;
 using System.Security.Claims;
 using System.Threading;
 using Dapper;
@@ -16,24 +15,18 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
     where TRole : IdentityRole<TKey>
     where TKey : IEquatable<TKey>
 {
-    private readonly DapperStoreOptions options;
     private readonly IIdentityQueries queries;
-    private readonly DbDataSource db;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RoleStore{TRole, TKey}"/> class.
     /// </summary>
     /// <param name="options">The store options.</param>
-    /// <param name="identityQueries">The SQL queries used to access the store.</param>
-    /// <param name="dbDataSource">The <see cref="DbDataSource"/> used to access the store.</param>
     /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-    public RoleStore(IOptions<DapperStoreOptions> options, IIdentityQueries identityQueries, DbDataSource dbDataSource, IdentityErrorDescriber describer) : base(describer)
+    public RoleStore(IOptions<DapperStoreOptions> options, IdentityErrorDescriber? describer = null)
+        : base(options.Value, describer ?? new())
     {
-        ArgumentNullException.ThrowIfNull(identityQueries);
-        ArgumentNullException.ThrowIfNull(dbDataSource);
-        this.options = options.Value;
-        this.queries = identityQueries;
-        this.db = dbDataSource;
+        ArgumentNullException.ThrowIfNull(options.Value.Queries);
+        this.queries = options.Value.Queries;
     }
 
     /// <inheritdoc/>
@@ -43,12 +36,12 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ArgumentNullException.ThrowIfNull(role);
         ArgumentNullException.ThrowIfNull(claim);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
             await cnn.ExecuteAsync(this.queries.InsertRoleClaim,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     RoleId = ConvertIdToDbString(role.Id),
@@ -75,12 +68,12 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
             await cnn.ExecuteAsync(this.queries.InsertRole,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     Id = ConvertIdToDbString(role.Id),
@@ -112,12 +105,12 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
             await cnn.ExecuteAsync(this.queries.DeleteRole,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     RoleId = ConvertIdToDbString(role.Id)
@@ -143,10 +136,10 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(id);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var roleId = ConvertIdFromString(id);
         var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRoleById,
-            this.options.KeyRequiresDbString ?
+            this.KeyRequiresDbString ?
             new
             {
                 RoleId = ConvertIdToDbString(roleId!)
@@ -164,7 +157,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(normalizedName);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRoleByName,
             new
             {
@@ -179,9 +172,9 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var claims = await cnn.QueryAsync<IdentityRoleClaim<TKey>>(this.queries.SelectRoleClaims,
-            this.options.KeyRequiresDbString ?
+            this.KeyRequiresDbString ?
             new
             {
                 RoleId = ConvertIdToDbString(role.Id)
@@ -200,12 +193,12 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ArgumentNullException.ThrowIfNull(role);
         ArgumentNullException.ThrowIfNull(claim);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
             await cnn.ExecuteAsync(this.queries.DeleteRoleClaim,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     RoleId = ConvertIdToDbString(role.Id),
@@ -232,14 +225,14 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
 
-        await using var cnn = await this.db.OpenConnectionAsync(cancellationToken);
+        await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         await using var tx = await cnn.BeginTransactionAsync(cancellationToken);
         try
         {
             role.ConcurrencyStamp = Guid.NewGuid().ToString();
 
             await cnn.ExecuteAsync(this.queries.UpdateRole,
-                this.options.KeyRequiresDbString ?
+                this.KeyRequiresDbString ?
                 new
                 {
                     Id = ConvertIdToDbString(role.Id),

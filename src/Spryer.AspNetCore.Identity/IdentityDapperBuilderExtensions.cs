@@ -1,6 +1,7 @@
 ﻿namespace Spryer.AspNetCore.Identity;
 
 using System;
+using System.Data.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -19,7 +20,12 @@ public static class IdentityDapperBuilderExtensions
     /// <returns>The <see cref="IdentityBuilder"/> instance.</returns>
     public static IdentityBuilder AddDapperStores(this IdentityBuilder builder, Action<OptionsBuilder<DapperStoreOptions>> setupAction)
     {
-        var optionsBuilder = builder.Services.AddOptions<DapperStoreOptions>();
+        var optionsBuilder = builder.Services.AddOptions<DapperStoreOptions>()
+            .PostConfigure<IServiceProvider>((options, serviceProvider) =>
+            {
+                options.DataSource ??= serviceProvider.GetService<DbDataSource>();
+                options.Queries ??= serviceProvider.GetService<IIdentityQueries>();
+            });
         setupAction(optionsBuilder);
         AddStores(builder, optionsBuilder);
         return builder;
