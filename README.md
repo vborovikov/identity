@@ -5,7 +5,7 @@ ASP.NET Core Identity storage providers that use Dapper.
 
 | Package | Version | Downloads |
 | --- | --- | --- |
-| Spryer | [![NuGet](https://img.shields.io/nuget/v/Spryer.svg)](https://www.nuget.org/packages/Spryer) | [![Downloads](https://img.shields.io/nuget/dt/Spryer.svg)](https://www.nuget.org/packages/Spryer) |
+| [Spryer](https://github.com/vborovikov/spryer) | [![NuGet](https://img.shields.io/nuget/v/Spryer.svg)](https://www.nuget.org/packages/Spryer) | [![Downloads](https://img.shields.io/nuget/dt/Spryer.svg)](https://www.nuget.org/packages/Spryer) |
 | Spryer.AspNetCore.Identity | [![NuGet](https://img.shields.io/nuget/v/Spryer.AspNetCore.Identity.svg)](https://www.nuget.org/packages/Spryer.AspNetCore.Identity) | [![Downloads](https://img.shields.io/nuget/dt/Spryer.AspNetCore.Identity.svg)](https://www.nuget.org/packages/Spryer.AspNetCore.Identity) |
 | Spryer.AspNetCore.Identity.SqlServer | [![NuGet](https://img.shields.io/nuget/v/Spryer.AspNetCore.Identity.SqlServer.svg)](https://www.nuget.org/packages/Spryer.AspNetCore.Identity.SqlServer) | [![Downloads](https://img.shields.io/nuget/dt/Spryer.AspNetCore.Identity.SqlServer.svg)](https://www.nuget.org/packages/Spryer.AspNetCore.Identity.SqlServer) |
 | Spryer.AspNetCore.Identity.Sqlite | [![NuGet](https://img.shields.io/nuget/v/Spryer.AspNetCore.Identity.Sqlite.svg)](https://www.nuget.org/packages/Spryer.AspNetCore.Identity.Sqlite) | [![Downloads](https://img.shields.io/nuget/dt/Spryer.AspNetCore.Identity.Sqlite.svg)](https://www.nuget.org/packages/Spryer.AspNetCore.Identity.Sqlite) |
