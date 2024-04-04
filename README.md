@@ -33,8 +33,15 @@ public sealed class AppRole : IdentityRole<Guid>
     }
 }
 
+// Program.cs
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+builder.Services.AddScoped(_ => SqlClientFactory.Instance.CreateDataSource(connectionString));
+
 builder.Services
-    .AddIdentity<AppUser, AppRole>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddIdentity<AppUser, AppRole>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddDapperStores(options => 
     {
         options.UseSqlServer();
