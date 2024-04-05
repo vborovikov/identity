@@ -20,7 +20,7 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     where TRole : IdentityRole<TKey>
     where TKey : IEquatable<TKey>
 {
-    private readonly IIdentityQueries queries;
+    private readonly IIdentityStoreQueries queries;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserStore{TUser, TRole, TKey}"/> class.
@@ -30,8 +30,8 @@ public class UserStore<TUser, TRole, TKey> : UserStoreBase<TUser, TRole, TKey,
     public UserStore(IOptions<DapperStoreOptions> options, IdentityErrorDescriber? describer = null)
         : base(options.Value, describer ?? new())
     {
-        ArgumentNullException.ThrowIfNull(options.Value.Queries);
-        this.queries = options.Value.Queries;
+        ArgumentNullException.ThrowIfNull(options.Value.StoreQueries);
+        this.queries = options.Value.StoreQueries;
     }
 
     /// <inheritdoc/>

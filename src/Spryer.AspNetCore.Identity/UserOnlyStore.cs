@@ -69,7 +69,7 @@ public class UserOnlyStore<TUser, TKey, TUserClaim, TUserLogin, TUserToken> :
     where TUserLogin : IdentityUserLogin<TKey>, new()
     where TUserToken : IdentityUserToken<TKey>, new()
 {
-    private readonly IIdentityQueries queries;
+    private readonly IIdentityStoreQueries queries;
 
     /// <summary>
     /// Creates a new instance of the store.
@@ -79,8 +79,8 @@ public class UserOnlyStore<TUser, TKey, TUserClaim, TUserLogin, TUserToken> :
     public UserOnlyStore(IOptions<DapperStoreOptions> options, IdentityErrorDescriber? describer = null)
         : base(options.Value, describer ?? new())
     {
-        ArgumentNullException.ThrowIfNull(options.Value.Queries);
-        this.queries = options.Value.Queries;
+        ArgumentNullException.ThrowIfNull(options.Value.StoreQueries);
+        this.queries = options.Value.StoreQueries;
     }
 
     /// <summary>

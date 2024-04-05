@@ -3,7 +3,7 @@
 /// <summary>
 /// Defines the SQL queries used to access the store.
 /// </summary>
-public interface IIdentityQueries
+public interface IIdentityStoreQueries
 {
     /// <summary>
     /// Gets the SQL query to insert a new user.

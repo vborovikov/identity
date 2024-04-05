@@ -6,7 +6,7 @@ The ASP.NET Core Identity storage provider that uses SQLite.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddScoped(_ => SqliteFactory.Instance.CreateDataSource(connectionString));
+builder.Services.AddSingleton(_ => SqliteFactory.Instance.CreateDataSource(connectionString));
 
 builder.Services
     .AddDefaultIdentity<IdentityUser>()

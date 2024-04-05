@@ -13,9 +13,9 @@ public class DapperStoreOptions
     /// </summary>
     internal DbDataSource? DataSource { get; set; }
     /// <summary>
-    /// Gets or sets the <see cref="IIdentityQueries"/> to use for the stores.
+    /// Gets or sets the <see cref="IIdentityStoreQueries"/> to use for the stores.
     /// </summary>
-    public IIdentityQueries? Queries { get; set; }
+    public IIdentityStoreQueries? StoreQueries { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the key parameter type requires a conversion to <see cref="DbString"/>.

@@ -23,8 +23,10 @@ public static class IdentityDapperBuilderExtensions
         var optionsBuilder = builder.Services.AddOptions<DapperStoreOptions>()
             .PostConfigure<IServiceProvider>((options, serviceProvider) =>
             {
+                // we rely on these services being registered as singletons
+
                 options.DataSource ??= serviceProvider.GetService<DbDataSource>();
-                options.Queries ??= serviceProvider.GetService<IIdentityQueries>();
+                options.StoreQueries ??= serviceProvider.GetService<IIdentityStoreQueries>();
             });
         setupAction(optionsBuilder);
         AddStores(builder, optionsBuilder);
