@@ -38,7 +38,7 @@ public sealed class AppRole : IdentityRole<Guid>
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddScoped(_ => SqlClientFactory.Instance.CreateDataSource(connectionString));
+builder.Services.AddSingleton(_ => SqlClientFactory.Instance.CreateDataSource(connectionString));
 
 builder.Services
     .AddIdentity<AppUser, AppRole>(options => options.SignIn.RequireConfirmedAccount = true)
