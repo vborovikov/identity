@@ -1,6 +1,6 @@
 ﻿namespace Spryer.AspNetCore.Identity.Sqlite;
 
-sealed class SqliteIdentityQueries : IIdentityQueries
+sealed class SqliteIdentityQueries : IIdentityStoreQueries
 {
     public string InsertUser =>
         """

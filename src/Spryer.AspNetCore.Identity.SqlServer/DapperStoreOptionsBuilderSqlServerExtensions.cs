@@ -15,7 +15,7 @@ public static class DapperStoreOptionsBuilderSqlServerExtensions
     /// <returns>The <see cref="OptionsBuilder{DapperStoreOptions}"/> so that additional calls can be chained.</returns>
     public static OptionsBuilder<DapperStoreOptions> UseSqlServer(this OptionsBuilder<DapperStoreOptions> builder)
     {
-        builder.Services.TryAddSingleton<IIdentityQueries, SqlServerIdentityQueries>();
+        builder.Services.TryAddSingleton<IIdentityStoreQueries, SqlServerIdentityQueries>();
         return builder;
     }
 
@@ -29,7 +29,7 @@ public static class DapperStoreOptionsBuilderSqlServerExtensions
     public static OptionsBuilder<DapperStoreOptions> UseSqlServer(this OptionsBuilder<DapperStoreOptions> builder,
         string dbSchema, string? tableNamePrefix = default)
     {
-        builder.Services.TryAddSingleton<IIdentityQueries>(_ => new SqlServerIdentityQueries
+        builder.Services.TryAddSingleton<IIdentityStoreQueries>(_ => new SqlServerIdentityQueries
         {
             Schema = dbSchema,
             Prefix = tableNamePrefix ?? string.Empty,

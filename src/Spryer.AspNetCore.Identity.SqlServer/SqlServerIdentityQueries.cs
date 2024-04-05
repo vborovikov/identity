@@ -1,6 +1,6 @@
 namespace Spryer.AspNetCore.Identity.SqlServer;
 
-sealed class SqlServerIdentityQueries : IIdentityQueries
+sealed class SqlServerIdentityQueries : IIdentityStoreQueries
 {
     internal string Schema { get; init; } = "dbo";
     internal string Prefix { get; init; } = "AspNet";

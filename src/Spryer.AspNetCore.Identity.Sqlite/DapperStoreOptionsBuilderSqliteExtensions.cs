@@ -15,7 +15,7 @@ public static class DapperStoreOptionsBuilderSqliteExtensions
     /// <returns>The <see cref="OptionsBuilder{DapperStoreOptions}"/> so that additional calls can be chained.</returns>
     public static OptionsBuilder<DapperStoreOptions> UseSqlite(this OptionsBuilder<DapperStoreOptions> builder)
     {
-        builder.Services.TryAddSingleton<IIdentityQueries, SqliteIdentityQueries>();
+        builder.Services.TryAddSingleton<IIdentityStoreQueries, SqliteIdentityQueries>();
         return builder;
     }
 }
