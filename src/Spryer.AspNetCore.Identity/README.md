@@ -1,4 +1,4 @@
-The base library for ASP.NET Core Identity storage provider that uses Dapper.
+The base library for ASP.NET Core Identity storage providers that use Dapper.
 
 # Usage
 
