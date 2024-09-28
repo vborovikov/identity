@@ -179,13 +179,6 @@ sealed class SqlServerIdentityQueries : IIdentityStoreQueries
     public string SelectRole => 
         $"""
         select r.*
-        from {this.Schema}.{this.Prefix}Roles r 
-        where r.NormalizedName = @NormalizedRoleName;
-        """;
-
-    public string SelectRoleById => 
-        $"""
-        select r.*
         from {this.Schema}.{this.Prefix}Roles r
         where r.Id = @RoleId;
         """;

@@ -178,13 +178,6 @@ sealed class SqliteIdentityQueries : IIdentityStoreQueries
     public string SelectRole => 
         """
         select r.*
-        from AspNetRoles r 
-        where r.NormalizedName = @NormalizedRoleName;
-        """;
-
-    public string SelectRoleById => 
-        """
-        select r.*
         from AspNetRoles r
         where r.Id = @RoleId;
         """;

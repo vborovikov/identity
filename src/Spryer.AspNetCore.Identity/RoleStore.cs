@@ -83,7 +83,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
                 } :
                 new
                 {
-                    RoleId = role.Id,
+                    Id = role.Id,
                     Name = role.Name.AsVarChar(128),
                     NormalizedName = role.NormalizedName.AsVarChar(128),
                     ConcurrencyStamp = role.ConcurrencyStamp.AsVarChar(128),
@@ -138,7 +138,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
 
         await using var cnn = await OpenDbConnectionAsync(cancellationToken);
         var roleId = ConvertIdFromString(id);
-        var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRoleById,
+        var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRole,
             this.KeyRequiresDbString ?
             new
             {
@@ -161,7 +161,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
         var role = await cnn.QuerySingleOrDefaultAsync<TRole>(this.queries.SelectRoleByName,
             new
             {
-                NormalizedName = normalizedName.AsVarChar(128)
+                NormalizedRoleName = normalizedName.AsVarChar(128)
             });
         return role;
     }
@@ -242,7 +242,7 @@ public class RoleStore<TRole, TKey> : RoleStoreBase<TRole, TKey, IdentityUserRol
                 } :
                 new
                 {
-                    RoleId = role.Id,
+                    Id = role.Id,
                     Name = role.Name.AsVarChar(128),
                     NormalizedName = role.NormalizedName.AsVarChar(128),
                     ConcurrencyStamp = role.ConcurrencyStamp.AsVarChar(128),

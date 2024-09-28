@@ -102,13 +102,9 @@ public interface IIdentityStoreQueries
     /// </summary>
     string DeleteRole { get; }
     /// <summary>
-    /// Gets the SQL query to select an existing role.
-    /// </summary>
-    string SelectRole { get; }
-    /// <summary>
     /// Gets the SQL query to select an existing role by ID.
     /// </summary>
-    string SelectRoleById { get; }
+    string SelectRole { get; }
     /// <summary>
     /// Gets the SQL query to select an existing role by name.
     /// </summary>
