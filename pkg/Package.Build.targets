@@ -1,0 +1,21 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <IdentitySqlScriptFile Condition="'$(IdentitySqlScriptFile)'==''" />
+    <IdentitySqlScriptFolder Condition="'$(IdentitySqlScriptFolder)'==''" />
+  </PropertyGroup>
+
+  <Target Name="CopyIdentitySqlScripts" BeforeTargets="AfterBuild">
+    <ItemGroup>
+      <_IdentitySqlFiles Include="$(MSBuildThisFileDirectory)\..\content\*.sql" />
+    </ItemGroup>
+
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)\..\content\identity.sql"
+          DestinationFiles="$(IdentitySqlScriptFile)"
+          SkipUnchangedFiles="true" OverwriteReadOnlyFiles="false"
+          Condition="'$(IdentitySqlScriptFile)'!='' and '$(IdentitySqlScriptFolder)'==''" />
+
+    <Copy SourceFiles="@(_IdentitySqlFiles)" DestinationFolder="$(IdentitySqlScriptFolder)"
+          SkipUnchangedFiles="true" OverwriteReadOnlyFiles="false"
+          Condition="'$(IdentitySqlScriptFile)'=='' and '$(IdentitySqlScriptFolder)'!=''" />
+  </Target>
+</Project>
