@@ -15,3 +15,23 @@ builder.Services
         options.UseSqlite();
     });
 ```
+
+## Configuration
+
+The database schema scripts can be generated using the following MSBuild properties: `IdentitySqlScriptFile` or `IdentitySqlScriptFolder`.
+
+To generate the main script file:
+```xml
+<PropertyGroup>
+    <IdentitySqlScriptFile>..\db\appdb.sql</IdentitySqlScriptFile>
+</PropertyGroup>
+```
+
+To generate all the scripts (just `identity.sql` for now):
+```xml
+<PropertyGroup>
+    <IdentitySqlScriptFolder>..\db</IdentitySqlScriptFolder>
+</PropertyGroup>
+```
+
+The properties are mutually exclusive.
